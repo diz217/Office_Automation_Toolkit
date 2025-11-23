@@ -4,7 +4,7 @@ Public Type Point2D
     x As Double
     y As Double
 End Type
-Public Sub FineGriding()
+Public Sub FineGridding()
     Dim sel As Selection
     Dim sr As ShapeRange
     Dim n As Long
