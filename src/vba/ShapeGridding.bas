@@ -66,7 +66,7 @@ Public Sub FineGridding()
         For j = 1 To bestrows
             y_pos = pts(order(1)).y + (j - 1) * dy
             idx = (i - 1) * bestrows + j
-            With sr(idx)
+            With sr(order(idx))
                 .Left = x_pos
                 .Top = y_pos
             End With
