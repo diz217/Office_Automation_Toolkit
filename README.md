@@ -8,6 +8,7 @@ A collection of PowerPoint VBA tools for fast slide formatting:
 - **Link helpers**: quickly create internal slide links
 - **Crop helpers**: crop-duplicate helpers 
 - **Delete placeholders**: delete placeholder title textbox to pages
+- **Shape Gridding helpers**: align the selected shapes to keep constant x and y separations between shapes.
 
 ---
 
@@ -75,6 +76,9 @@ A collection of PowerPoint VBA tools for fast slide formatting:
 ### Delete placeholders
 - `Deleteplaceholdertitle`: click **Deleteplaceholdertitle** to delete the empty title textboxes on each page past the active slide (including the active slide). If the title textbox is not empty, they won't be deleted.
 
+### Shape Gridding helpers
+- `FineGridding`: select shapes and click **FindGridding** to automatically detect the closest grid by which the shapes appear to be aligned, and apply such fine tuning to keep constant x and y separations between shapes.
+  - The separation is counted by position .left and .top, not by the center of the shape or other options. 
 ---
 
 ## Development
