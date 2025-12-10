@@ -45,7 +45,7 @@ A collection of PowerPoint VBA tools for fast slide formatting:
    - Rename and assign an icon.
    - Click **OK**.
 ### Ribbon example
-![ribbon example](docs/images/ribbon_tab.png)
+![ribbon example](Examples/ribbon_tab.png)
 
 ---
 
