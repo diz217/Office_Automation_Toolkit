@@ -116,6 +116,4 @@ A collection of PowerPoint VBA tools for fast slide formatting:
 ```
 ## Development
 
-- Edit macros inside PowerPoint (`macros.pptm`).
-- Export modules to `src/vba/*.bas` to keep them under version control.
-- Build a new `macros.ppam` when you want to release a new version.
+- New tools will be built accorded to needs.
