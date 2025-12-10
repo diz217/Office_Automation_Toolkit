@@ -22,13 +22,30 @@ A collection of PowerPoint VBA tools for fast slide formatting:
 
 ## Installation
 
-1. Download the vba module from this repository.
-2. Open the VBA Editor in Powerpoint by pressing `Alt+F11`.
-3. Import the `.bas` file:
-4. In PowerPoint: **File → Options → Add-ins**  
-5. Manage: `PowerPoint Add-ins` → `Go...`  
-6. Click **Add New...**, choose `macros.ppam`.
-7. Restart PowerPoint (if needed). A new tab **macros** should appear.
+- Download the vba module from this repository:
+   - Download `*.bas` files in `/src/vba/` 
+- Import the `*.bas` files:
+   - Open the VBA editor in PowerPoint by pressing **Alt+F11**.
+   - In the editor, make sure to select the project you want to use.
+   - Go to **File → Import File...**, and select the downloaded `*.bas` files. 
+- To save the presentation, there are 2 options:
+   - Option A, save as PowerPoint Macro-enabled presentation (`*.pptm`).
+   - Option B, save as PowerPoint Add-in (`*.ppam`).
+- For Option B, to enable the add-ins for general file usage:
+   - In PowerPoint, go to **File → Options → Add-ins**.
+   - At bottom, select **PowerPoint Add-ins** in **Manage**, then click **Go...**
+   - Click **Add New...**
+   - Select your `.ppam` file → **Ok**.
+   - Ensure the checkbox next to your add-in is checked.
+- Optional, Add the macro button to the **Ribbon**/**Quick Access Toolbar**:
+   - **File → Options → Customize Ribbon** (or **Quick Access Toolbar**)
+   - From **Choose commands from:**, select **Macros**.
+   - Select your macro.
+   - Click **Add >>**
+   - Rename and assign an icon.
+   - Click **OK**.
+### Ribbon example
+![ribbon example](docs/images/ribbon_tab.png)
 
 ---
 
