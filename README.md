@@ -109,10 +109,10 @@ A collection of PowerPoint VBA tools for fast slide formatting:
 |            ├── DeletePlaceholders.bas
 |            ├── Links2Pages.bas
 |            ├── ShapeGridding.bas 
-├── docs/ ── images/
-|            ├── ribbon_tab.png
+├── Examples/
+|   ├── ribbon_tab.png
 ├── README.md
-├── License
+└── License
 ```
 ## Development
 
