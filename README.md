@@ -22,11 +22,13 @@ A collection of PowerPoint VBA tools for fast slide formatting:
 
 ## Installation
 
-1. Download `dist/macros.ppam`.
-2. In PowerPoint: **File → Options → Add-ins**  
-3. Manage: `PowerPoint Add-ins` → `Go...`  
-4. Click **Add New...**, choose `macros.ppam`.
-5. Restart PowerPoint (if needed). A new tab **macros** should appear.
+1. Download the vba module from this repository.
+2. Open the VBA Editor in Powerpoint by pressing `Alt+F11`.
+3. Import the `.bas` file:
+4. In PowerPoint: **File → Options → Add-ins**  
+5. Manage: `PowerPoint Add-ins` → `Go...`  
+6. Click **Add New...**, choose `macros.ppam`.
+7. Restart PowerPoint (if needed). A new tab **macros** should appear.
 
 ---
 
@@ -80,7 +82,21 @@ A collection of PowerPoint VBA tools for fast slide formatting:
 - `FineGridding`: select shapes and click **FindGridding** to automatically detect the closest grid by which the shapes appear to be aligned, and apply such fine tuning to keep constant x and y separations between shapes.
   - The separation is counted by position .left and .top, not by the center of the shape or other options. 
 ---
-
+## Project Structure
+```
+├── src/ ── vba/
+|            ├── CopyPaste_pictureFormat.bas
+|            ├── CopyPaste_textbox2Pages.bas
+|            ├── CopyPaste_textboxFormat.bas
+|            ├── CropII.bas
+|            ├── DeletePlaceholders.bas
+|            ├── Links2Pages.bas
+|            ├── ShapeGridding.bas 
+├── docs/ ── images/
+|            ├── ribbon_tab.png
+├── README.md
+├── License
+```
 ## Development
 
 - Edit macros inside PowerPoint (`macros.pptm`).
