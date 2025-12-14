@@ -12,6 +12,7 @@ Public Type TextBoxFormat
     LineVisible As MsoTriState
     LineForeColor As Long
     LineWeight As Single
+    LineType As MsoLineDashStyle
     TextAlign As Long
     VerticalAlign As Long
     MarginLeft As Single
@@ -50,9 +51,10 @@ Public Sub CopyTBFormat()
     StoredTB.FillTransparency = shp.Fill.Transparency
     'frame
     StoredTB.LineVisible = shp.Line.Visible
-    StoredTB.LineForeColor = shp.Line.ForeColor.RGB
     If shp.Line.Visible = msoTrue Then
+        StoredTB.LineForeColor = shp.Line.ForeColor.RGB
         StoredTB.LineWeight = shp.Line.Weight
+        StoredTB.LineType = shp.Line.DashStyle
     Else
         StoredTB.LineWeight = 0
     End If
@@ -102,8 +104,11 @@ Public Sub PasteTBFomrat()
         shp.Fill.Transparency = StoredTB.FillTransparency
         'frame
         shp.Line.Visible = StoredTB.LineVisible
-        shp.Line.ForeColor.RGB = StoredTB.LineForeColor
-        shp.Line.Weight = StoredTB.LineWeight
+        If StoredTB.LineVisible = msoTrue Then
+            shp.Line.ForeColor.RGB = StoredTB.LineForeColor
+            shp.Line.Weight = StoredTB.LineWeight
+            shp.Line.DashStyle = StoredTB.LineType
+        End If
         'alignment
         shp.TextFrame2.TextRange.ParagraphFormat.Alignment = StoredTB.TextAlign
         shp.TextFrame2.VerticalAnchor = StoredTB.VerticalAlign
