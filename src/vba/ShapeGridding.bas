@@ -1,10 +1,10 @@
 Option Explicit
-
+ 
 Public Type Point2D
     x As Double
     y As Double
 End Type
-Public Sub FineGridding()
+Public Sub FineGriding()
     Dim sel As Selection
     Dim sr As ShapeRange
     Dim n As Long
@@ -35,29 +35,14 @@ Public Sub FineGridding()
     Next i
     '2. Find best grid: bestrows, bestcols '
     FindBestGrid pts, bestrows, bestcols, bestscore
-    '3. Find avg spacing dx and dy'
-    Dim xs() As Double, ys() As Double
+    Debug.Print "bestrows:"; bestrows; "bestcols"; bestcols; "bestscore:"; bestscore
+    '3. Sort the points by y,x'
     Dim order() As Long
-    Dim stdx As Double, stdy As Double
-    Dim dx As Double, dy As Double
-    ReDim xs(1 To n)
-    ReDim ys(1 To n)
     ReDim order(1 To n)
-    For i = 1 To n
-        xs(i) = pts(i).x
-        ys(i) = pts(i).y
-        order(i) = i
-    Next i
-    GroupStdAndSpacing ys, bestrows, stdy, dy
-    GroupStdAndSpacing xs, bestcols, stdx, dx
-    '4. Sort the points by y,x'
-    Dim startidx As Long, endidx As Long
-    SortArrayIndex order, xs, 1, n
-    For i = 1 To bestcols
-        startidx = (i - 1) * bestrows + 1
-        endidx = i * bestrows
-        SortArrayIndex order, ys, startidx, endidx
-    Next i
+    OrderByRowsCols pts, order, bestrows, bestcols, n
+    '4. Find avg spacing dx and dy'
+    Dim dx As Double, dy As Double
+    GroupSpacing pts, order, bestrows, bestcols, dx, dy
     '5. Apply griding, anchoring the left top shape, use avg dy dx as separations'
     Dim x_pos As Double, y_pos As Double
     Dim idx As Long
@@ -121,7 +106,6 @@ Public Sub FindBestGrid(ByRef pts() As Point2D, ByRef bestrows As Long, ByRef be
         r = gridrows(i)
         c = gridcols(i)
         score = GridScoreForShape(pts, r, c)
-        Debug.Print "score="; score; "; bestscore="; bestscore
         If score < bestscore Then
             bestscore = score
             bestrows = r
@@ -129,7 +113,7 @@ Public Sub FindBestGrid(ByRef pts() As Point2D, ByRef bestrows As Long, ByRef be
         End If
     Next i
 End Sub
-
+ 
 Public Sub BuildGridCandidates(ByVal n As Long, ByRef gridrows() As Long, ByRef gridcols() As Long, ByRef numgrids As Long)
     Dim r As Long
     numgrids = 0
@@ -150,9 +134,7 @@ Public Function GridScoreForShape(ByRef pts() As Point2D, ByVal rows As Long, By
     Dim n As Long
     Dim xs() As Double, ys() As Double
     Dim i As Long
-    Dim stdy As Double, dy As Double
-    Dim stdx As Double, dx As Double
-    Dim eps As Double
+    Dim stdy As Double, stdx As Double
     n = UBound(pts) - LBound(pts) + 1
     If rows * cols <> n Then
         GridScoreForShape = 10000000#
@@ -164,66 +146,88 @@ Public Function GridScoreForShape(ByRef pts() As Point2D, ByVal rows As Long, By
         xs(i) = pts(i).x
         ys(i) = pts(i).y
     Next i
-    GroupStdAndSpacing ys, rows, stdy, dy
-    GroupStdAndSpacing xs, cols, stdx, dx
-    Debug.Print "stdy="; stdy; "; dy="; dy; "rows="; rows; "stdx="; stdx; "; dx="; dx; "cols="; cols
-    eps = 0.000001
-    GridScoreForShape = stdy / (dy + eps) + stdx / (dx + eps)
+    Groupstd pts, rows, cols, stdx, stdy
+    'Debug.Print "   Score: stdy="; stdy; " rows = "; rows; "stdx = "; stdx; "cols = "; cols
+    GridScoreForShape = stdy + stdx
 End Function
  
-Public Sub GroupStdAndSpacing(ByRef values() As Double, ByVal groups As Long, ByRef avgstd As Double, ByRef avgspacing As Double)
-    Dim n As Long
-    Dim sorted() As Double
-    Dim i As Long
-    Dim base As Long
-    Dim startidx As Long, endidx As Long, g As Long
-    Dim chunkmean As Double, chunkstd As Double
-    Dim groupmeans() As Double, groupstds() As Double
-    Dim diffs() As Double
-    n = UBound(values) - LBound(values) + 1
-    If groups <= 0 Or groups > n Then
-        avgstd = 0
-        avgspacing = 1
-    End If
-    ReDim sorted(1 To n)
-    For i = 1 To n
-        sorted(i) = values(i)
-    Next i
-    SortArray sorted
-    base = n \ groups
-    ReDim groupmeans(1 To groups)
-    ReDim groupstds(1 To groups)
-    startidx = 1
-    For g = 1 To groups
-        endidx = startidx + base - 1
-        ComputeMeanStd sorted, startidx, endidx, chunkmean, chunkstd
-        groupmeans(g) = chunkmean
-        groupstds(g) = chunkstd
-        startidx = endidx + 1
-    Next g
-    avgstd = 0
-    For g = 1 To groups
-        avgstd = avgstd + groupstds(g)
-    Next g
-    avgstd = avgstd / groups
-    If groups = 1 Then
-        avgspacing = sorted(n) - sorted(1)
-        If avgspacing <= 0 Then avgspacing = 0.000001
-    Else
-        SortArray groupmeans
-        ReDim diffs(1 To groups - 1)
-        For g = 1 To groups - 1
-            diffs(g) = groupmeans(g + 1) - groupmeans(g)
-        Next g
-        avgspacing = 0
-        For g = 1 To groups - 1
-            avgspacing = avgspacing + diffs(g)
-        Next g
-        avgspacing = avgspacing / (groups - 1)
-        If avgspacing <= 0 Then avgspacing = 0.000001
-    End If
-End Sub
+Public Sub Groupstd(ByRef pts() As Point2D, ByVal rows As Long, ByVal cols As Long, ByRef avgstdx As Double, ByRef avgstdy As Double)
+    Dim i As Long, j As Long, n As Long, index As Long
+    Dim test_ord() As Long
+    Dim list() As Double
  
+    n = UBound(pts) - LBound(pts) + 1
+    ReDim test_ord(1 To n)
+    OrderByRowsCols pts, test_ord, rows, cols, n
+    ' works on group stdx
+    avgstdx = 0
+    For i = 1 To cols
+        Erase list
+        ReDim list(1 To rows)
+        For j = 1 To rows
+            index = (i - 1) * rows + j
+            list(j) = pts(test_ord(index)).x
+        Next j
+        avgstdx = avgstdx + ComputeStd(list) / cols
+    Next i
+    ' works on group stdy
+    avgstdy = 0
+    For i = 1 To rows
+        Erase list
+        ReDim list(1 To cols)
+        For j = 1 To cols
+            index = (j - 1) * rows + i
+            list(j) = pts(test_ord(index)).y
+        Next j
+        avgstdy = avgstdy + ComputeStd(list) / rows
+    Next i
+End Sub
+Public Sub GroupSpacing(ByRef pts() As Point2D, ByRef order() As Long, ByVal rows As Long, ByVal cols As Long, ByRef dx As Double, ByRef dy As Double)
+    Dim i As Long, j As Long
+    Dim startidx As Long, endidx As Long
+    Dim index1 As Long, index2 As Long
+    Dim tempx As Double, tempy As Double
+    dx = 0
+    dy = 0
+    ' works on dy, y separation
+    For i = 1 To cols
+        startidx = (i - 1) * rows + 1
+        endidx = i * rows
+        tempy = 0
+        For j = startidx To endidx - 1
+            tempy = tempy + (pts(order(j + 1)).y - pts(order(j)).y) / (rows - 1)
+        Next j
+        dy = dy + tempy / cols
+    Next i
+    ' works on dx, x separation
+    For i = 1 To rows
+        tempx = 0
+        For j = 1 To cols - 1
+            index1 = (j - 1) * rows + i
+            index2 = j * rows + i
+            tempx = tempx + (pts(order(index2)).x - pts(order(index1)).x) / (cols - 1)
+        Next j
+        dx = dx + tempx / rows
+    Next i
+End Sub
+Public Sub OrderByRowsCols(ByRef pts() As Point2D, ByRef order() As Long, ByVal rows As Long, ByVal cols As Long, ByVal n As Long)
+    Dim startidx As Long, endidx As Long
+    Dim xs() As Double, ys() As Double
+    Dim i As Long
+    ReDim xs(1 To n)
+    ReDim ys(1 To n)
+    For i = 1 To n
+        xs(i) = pts(i).x
+        ys(i) = pts(i).y
+        order(i) = i
+    Next i
+    SortArrayIndex order, xs, 1, n
+    For i = 1 To cols
+        startidx = (i - 1) * rows + 1
+        endidx = i * rows
+        SortArrayIndex order, ys, startidx, endidx
+    Next i
+End Sub
 Public Sub SortArray(ByRef arr() As Double)
     Dim i As Long, j As Long
     Dim tmp As Double
@@ -253,11 +257,11 @@ Public Sub SortArrayIndex(ByRef ord() As Long, ByRef arr() As Double, ByVal lo A
         Next j
     Next i
 End Sub
-Public Sub ComputeMeanStd(ByRef arr() As Double, ByVal startidx As Long, ByVal endidx As Long, ByRef meanval As Double, ByRef stdval As Double)
+Public Sub ComputeMeanStd(ByRef arr() As Double, ByVal startidx As Long, ByVal endidx As Long, ByRef stdval As Double)
     Dim i As Long, n As Long
     Dim s As Double
     Dim diff As Double
-    Dim varsum As Double
+    Dim meanval As Double, varsum As Double
     n = endidx - startidx + 1
     If n <= 0 Then
         meanval = 0
@@ -269,9 +273,6 @@ Public Sub ComputeMeanStd(ByRef arr() As Double, ByVal startidx As Long, ByVal e
         s = s + arr(i)
     Next i
     meanval = s / n
-    If n = 1 Then
-        stdval = 0
-    End If
     varsum = 0
     For i = startidx To endidx
         diff = arr(i) - meanval
@@ -279,3 +280,19 @@ Public Sub ComputeMeanStd(ByRef arr() As Double, ByVal startidx As Long, ByVal e
     Next i
     stdval = Sqr(varsum / n)
 End Sub
+Public Function ComputeStd(ByRef arr() As Double) As Double
+    Dim i As Long, n As Long
+    Dim diff As Double
+    Dim meanval As Double, varsum As Double
+    n = UBound(arr) - LBound(arr) + 1
+    meanval = 0
+    For i = 1 To n
+        meanval = meanval + arr(i) / n
+    Next i
+    varsum = 0
+    For i = 1 To n
+        diff = arr(i) - meanval
+        varsum = varsum + diff * diff
+    Next i
+    ComputeStd = Sqr(varsum / n)
+End Function
