@@ -21,6 +21,7 @@ Public Type CopyShapeInfo
    LineVisible As MsoTriState
    LineRGB As Long
    LineWeight As Single
+   LineType As msoLineDashStyle
   
    IsPicture As Boolean
    CropLeft As Single
@@ -84,6 +85,7 @@ Public Sub CopyShapeFormatA()
         On Error Resume Next
         gInfoA.LineRGB = shp.Line.ForeColor.RGB
         gInfoA.LineWeight = shp.Line.Weight
+        gInfoA.LineType = shp.Line.DashStyle
         On Error GoTo 0
     End If
     ' crop
@@ -149,6 +151,7 @@ Public Sub CopyShapeFormatB()
         On Error Resume Next
         gInfoB.LineRGB = shp.Line.ForeColor.RGB
         gInfoB.LineWeight = shp.Line.Weight
+        gInfoB.LineType = shp.Line.DashStyle
         On Error GoTo 0
     End If
     ' crop
@@ -214,6 +217,7 @@ Public Sub CopyShapeFormatC()
         On Error Resume Next
         gInfoC.LineRGB = shp.Line.ForeColor.RGB
         gInfoC.LineWeight = shp.Line.Weight
+        gInfoC.LineType = shp.Line.DashStyle
         On Error GoTo 0
     End If
     ' crop
@@ -322,12 +326,11 @@ Private Sub ApplyPasteUnit(ByVal shp As Shape, ByRef info As CopyShapeInfo)
     End If
     On Error GoTo 0
     'fill
-    If info.HasLine Then
-        shp.Line.Visible = info.LineVisible
-        If info.LineVisible = msoTrue Then
+    If info.HasFill Then
+        shp.Fill.Visible = info.FillVisible
+        If info.FillVisible = msoTrue Then
             On Error Resume Next
-            shp.Line.ForeColor.RGB = info.LineRGB
-            shp.Line.Weight = info.LineWeight
+            shp.Fill.ForeColor.RGB = info.FillRGB
             On Error GoTo 0
         End If
     End If
@@ -338,6 +341,7 @@ Private Sub ApplyPasteUnit(ByVal shp As Shape, ByRef info As CopyShapeInfo)
             On Error Resume Next
             shp.Line.ForeColor.RGB = info.LineRGB
             shp.Line.Weight = info.LineWeight
+            shp.Line.DashStyle = info.LineType
             On Error GoTo 0
         End If
     End If
